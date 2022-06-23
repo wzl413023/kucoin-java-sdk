@@ -124,6 +124,7 @@ public abstract class BaseWebsocketImpl implements Closeable {
         subscribe.setTopic(topic);
         subscribe.setPrivateChannel(privateChannel);
         subscribe.setResponse(response);
+        LOGGER.info("suber=> {}", topic);
         if (webSocket.send(serialize(subscribe))) {
             subTopics.remove(subscribe);
             return uuid;

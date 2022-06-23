@@ -146,6 +146,13 @@ public class KucoinPublicWSClientImpl extends BaseWebsocketImpl implements Kucoi
     }
 
     @Override
+    public String unsubscribeCandle1min(String... symbols) {
+        String topic = APIConstants.API_CANDLE_1MIN_TOPIC_PREFIX + Arrays.stream(symbols).map(item -> item.concat("_1min")).collect(Collectors.joining(","));
+
+        return super.unsubscribe(topic, false, true);
+    }
+
+    @Override
     public String onSnapshot(KucoinAPICallback<KucoinEvent<SnapshotEvent>> callback, String target) {
         if (callback != null) {
             this.listener.setSnapshotCallback(callback);

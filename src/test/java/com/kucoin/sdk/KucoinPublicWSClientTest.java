@@ -23,6 +23,7 @@ import java.math.BigDecimal;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.LockSupport;
 
@@ -113,19 +114,27 @@ public class KucoinPublicWSClientTest {
 
     @Test
     public void onCandle1min() throws Exception {
+        AtomicInteger c  = new AtomicInteger(0);
         kucoinPublicWSClient.onCandle1min(new KucoinAPICallback<KucoinEvent<CandleEvent>>() {
             @Override
             public void onResponse(KucoinEvent<CandleEvent> response) throws KucoinApiException {
 
                 log.info("price {},time {},canlde=> {}", response.getData().getCandles()[2], System.currentTimeMillis(), response.getData().getTime());
+                if(c.incrementAndGet()>5){
+                    log.info("unsubscribeCandle1min");
+                    kucoinPublicWSClient.unsubscribeCandle1min("BTC-USDT");
+                };
+
             }
         }, "BTC-USDT");
-        kucoinPublicWSClient.onMatchExecutionData(new KucoinAPICallback<KucoinEvent<MatchExcutionChangeEvent>>() {
-            @Override
-            public void onResponse(KucoinEvent<MatchExcutionChangeEvent> response) throws KucoinApiException {
-                log.info("price {},time {},match=> {}", response.getData().getPrice(), System.currentTimeMillis(), response.getData().getTime());
-            }
-        }, "BTC-USDT");
+
+//
+//        kucoinPublicWSClient.onMatchExecutionData(new KucoinAPICallback<KucoinEvent<MatchExcutionChangeEvent>>() {
+//            @Override
+//            public void onResponse(KucoinEvent<MatchExcutionChangeEvent> response) throws KucoinApiException {
+//                log.info("price {},time {},match=> {}", response.getData().getPrice(), System.currentTimeMillis(), response.getData().getTime());
+//            }
+//        }, "BTC-USDT");
 
         LockSupport.parkUntil(System.currentTimeMillis() + 1000 * 30);
     }

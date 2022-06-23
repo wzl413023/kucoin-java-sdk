@@ -104,6 +104,9 @@ public interface KucoinPublicWSClient {
      */
     String unsubscribe(PublicChannelEnum channelEnum, String... symbols);
 
+
+    String unsubscribeCandle1min( String... symbols);
+
     /**
      * Close client
      */
