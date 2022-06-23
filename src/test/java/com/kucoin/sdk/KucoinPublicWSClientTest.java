@@ -3,12 +3,16 @@
  */
 package com.kucoin.sdk;
 
+import com.kucoin.sdk.exception.KucoinApiException;
 import com.kucoin.sdk.model.enums.ApiKeyVersionEnum;
 import com.kucoin.sdk.model.enums.PublicChannelEnum;
 import com.kucoin.sdk.rest.request.OrderCreateApiRequest;
 import com.kucoin.sdk.rest.response.OrderCreateResponse;
 import com.kucoin.sdk.rest.response.TickerResponse;
+import com.kucoin.sdk.websocket.KucoinAPICallback;
 import com.kucoin.sdk.websocket.event.*;
+import lombok.ToString;
+import lombok.extern.slf4j.Slf4j;
 import org.hamcrest.core.Is;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -20,6 +24,7 @@ import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.LockSupport;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -29,6 +34,7 @@ import static org.junit.Assert.assertTrue;
  * <p>
  * Run with -Dorg.slf4j.simpleLogger.defaultLogLevel=debug for debug logging
  */
+@Slf4j
 public class KucoinPublicWSClientTest {
 
     private static KucoinPublicWSClient kucoinPublicWSClient;
@@ -104,6 +110,26 @@ public class KucoinPublicWSClientTest {
         assertTrue(gotEvent.await(20, TimeUnit.SECONDS));
         System.out.println(event.get());
     }
+
+    @Test
+    public void onCandle1min() throws Exception {
+        kucoinPublicWSClient.onCandle1min(new KucoinAPICallback<KucoinEvent<CandleEvent>>() {
+            @Override
+            public void onResponse(KucoinEvent<CandleEvent> response) throws KucoinApiException {
+
+                log.info("price {},time {},canlde=> {}", response.getData().getCandles()[2], System.currentTimeMillis(), response.getData().getTime());
+            }
+        }, "BTC-USDT");
+        kucoinPublicWSClient.onMatchExecutionData(new KucoinAPICallback<KucoinEvent<MatchExcutionChangeEvent>>() {
+            @Override
+            public void onResponse(KucoinEvent<MatchExcutionChangeEvent> response) throws KucoinApiException {
+                log.info("price {},time {},match=> {}", response.getData().getPrice(), System.currentTimeMillis(), response.getData().getTime());
+            }
+        }, "BTC-USDT");
+
+        LockSupport.parkUntil(System.currentTimeMillis() + 1000 * 30);
+    }
+
 
     @Test
     public void onLevel2Depth50Data() throws Exception {

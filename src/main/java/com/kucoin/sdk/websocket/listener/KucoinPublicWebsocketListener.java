@@ -9,6 +9,7 @@ import com.kucoin.sdk.KucoinObjectMapper;
 import com.kucoin.sdk.websocket.KucoinAPICallback;
 import com.kucoin.sdk.websocket.PrintCallback;
 import com.kucoin.sdk.websocket.event.*;
+import com.kucoin.sdk.websocket.impl.BaseWebsocketImpl;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import okhttp3.Response;
@@ -28,6 +29,9 @@ import static com.kucoin.sdk.constants.APIConstants.*;
 @EqualsAndHashCode(callSuper = false)
 public class KucoinPublicWebsocketListener extends WebSocketListener {
 
+    private BaseWebsocketImpl baseWebsocket;
+
+
     private static final Logger LOGGER = LoggerFactory.getLogger(KucoinPublicWebsocketListener.class);
 
     private KucoinAPICallback<KucoinEvent<TickerChangeEvent>> tickerCallback = new PrintCallback<>();
@@ -35,6 +39,7 @@ public class KucoinPublicWebsocketListener extends WebSocketListener {
     private KucoinAPICallback<KucoinEvent<Level2Event>> level2Depth5Callback = new PrintCallback<>();
     private KucoinAPICallback<KucoinEvent<Level2Event>> level2Depth50Callback = new PrintCallback<>();
     private KucoinAPICallback<KucoinEvent<MatchExcutionChangeEvent>> matchDataCallback = new PrintCallback<>();
+    private KucoinAPICallback<KucoinEvent<CandleEvent>> candleCallback = new PrintCallback<>();
     private KucoinAPICallback<KucoinEvent<Level3ChangeEvent>> level3Callback = new PrintCallback<>();
     private KucoinAPICallback<KucoinEvent<Level3Event>> level3V2Callback = new PrintCallback<>();
     private KucoinAPICallback<KucoinEvent<SnapshotEvent>> snapshotCallback = new PrintCallback<>();
@@ -46,13 +51,13 @@ public class KucoinPublicWebsocketListener extends WebSocketListener {
 
     @Override
     public void onMessage(WebSocket webSocket, String text) {
-        LOGGER.debug("Got message: {}", text);
+        //LOGGER.debug("Got message: {}", text);
         JsonNode jsonObject = tree(text);
-        LOGGER.debug("Parsed message OK");
+        //LOGGER.debug("Parsed message OK");
 
         String type = jsonObject.get("type").asText();
         if (!type.equals("message")) {
-            LOGGER.debug("Ignoring message type ({})", type);
+            //LOGGER.debug("Ignoring message type ({})", type);
             return;
         }
 
@@ -89,12 +94,21 @@ public class KucoinPublicWebsocketListener extends WebSocketListener {
             KucoinEvent<Level2Event> kucoinEvent = deserialize(text, new TypeReference<KucoinEvent<Level2Event>>() {
             });
             level2Depth50Callback.onResponse(kucoinEvent);
+        } else if (topic.contains(API_CANDLE_1MIN_TOPIC_PREFIX)) {
+            KucoinEvent<CandleEvent> kucoinEvent = deserialize(text, new TypeReference<KucoinEvent<CandleEvent>>() {
+            });
+            candleCallback.onResponse(kucoinEvent);
         }
     }
 
     @Override
     public void onFailure(WebSocket webSocket, Throwable t, Response response) {
         LOGGER.error("Error on private socket", t);
+        try {
+            baseWebsocket.connect();
+        } catch (IOException e) {
+            LOGGER.warn("ws 重连异常");
+        }
     }
 
     private JsonNode tree(String text) {

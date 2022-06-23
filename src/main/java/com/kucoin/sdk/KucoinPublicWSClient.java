@@ -58,6 +58,9 @@ public interface KucoinPublicWSClient {
      */
     String onMatchExecutionData(KucoinAPICallback<KucoinEvent<MatchExcutionChangeEvent>> callback, String... symbols);
 
+
+    String onCandle1min(KucoinAPICallback<KucoinEvent<CandleEvent>> callback, String... symbols);
+
     /**
      * Subscribe this topic to get the updated data for orders and trades.
      * <p>

@@ -44,6 +44,7 @@ public class KucoinPublicWSClientImpl extends BaseWebsocketImpl implements Kucoi
                                      WebsocketPublicAPI websocketPublicAPI) {
         super(client, listener, chooseServerStrategy);
         this.listener = listener;
+        listener.setBaseWebsocket(this);
         this.websocketPublicAPI = websocketPublicAPI;
     }
 
@@ -102,6 +103,15 @@ public class KucoinPublicWSClientImpl extends BaseWebsocketImpl implements Kucoi
             this.listener.setMatchDataCallback(callback);
         }
         String topic = APIConstants.API_MATCH_TOPIC_PREFIX + Arrays.stream(symbols).collect(Collectors.joining(","));
+        return subscribe(topic, false, true);
+    }
+
+    @Override
+    public String onCandle1min(KucoinAPICallback<KucoinEvent<CandleEvent>> callback, String... symbols) {
+        if (callback != null) {
+            this.listener.setCandleCallback(callback);
+        }
+        String topic = APIConstants.API_CANDLE_1MIN_TOPIC_PREFIX + Arrays.stream(symbols).map(item -> item.concat("_1min")).collect(Collectors.joining(","));
         return subscribe(topic, false, true);
     }
 

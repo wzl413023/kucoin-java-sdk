@@ -38,7 +38,6 @@ public class KucoinPrivateWebsocketListener extends WebSocketListener {
 
     private BaseWebsocketImpl baseWebsocket;
 
-    public KucoinPrivateWebsocketListener() {}
 
     @Override
     public void onOpen(WebSocket webSocket, Response response) {

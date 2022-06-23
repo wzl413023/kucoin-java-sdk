@@ -34,7 +34,7 @@ public class HttpClientFactory {
             builder.addInterceptor(interceptor);
         }
         //builder.connectionPool(new ConnectionPool(3,3,TimeUnit.SECONDS));
-        builder.pingInterval(1000 * 5, TimeUnit.MILLISECONDS);
+        builder.pingInterval(1000 , TimeUnit.MILLISECONDS);
         return builder.build();
     }
 

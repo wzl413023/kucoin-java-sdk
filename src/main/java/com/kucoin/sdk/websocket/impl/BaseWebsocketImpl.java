@@ -4,6 +4,8 @@
 package com.kucoin.sdk.websocket.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.kucoin.sdk.KucoinObjectMapper;
 import com.kucoin.sdk.model.InstanceServer;
 import com.kucoin.sdk.rest.response.WebsocketTokenResponse;
@@ -19,17 +21,22 @@ import org.slf4j.LoggerFactory;
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.SocketException;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * Created by chenshiwei on 2019/1/18.
  */
 public abstract class BaseWebsocketImpl implements Closeable {
+
+    private Set<KucoinEvent<Void>> subTopics = Sets.newConcurrentHashSet();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseWebsocketImpl.class);
 
@@ -37,7 +44,7 @@ public abstract class BaseWebsocketImpl implements Closeable {
     private final OkHttpClient client;
     private final WebSocketListener listener;
 
-    private WebSocket webSocket;
+    protected WebSocket webSocket;
 
     protected BaseWebsocketImpl(OkHttpClient client, WebSocketListener listener, ChooseServerStrategy chooseServerStrategy) {
         this.client = client;
@@ -69,6 +76,12 @@ public abstract class BaseWebsocketImpl implements Closeable {
 //                }
 //            }, instanceServer.getPingInterval(), instanceServer.getPingInterval() - 1000, TimeUnit.MILLISECONDS);
 //        }
+        if (subTopics.size() > 0) {
+            for (KucoinEvent<Void> subTopic : subTopics) {
+                LOGGER.warn("重连订阅 [{}],topic=> {}", webSocket.send(serialize(subTopic)), subTopic.toString());
+                ;
+            }
+        }
         return webSocket;
     }
 
@@ -91,12 +104,15 @@ public abstract class BaseWebsocketImpl implements Closeable {
         subscribe.setTopic(topic);
         subscribe.setPrivateChannel(privateChannel);
         subscribe.setResponse(response);
+        LOGGER.info("suber=> {}", topic);
         if (webSocket.send(serialize(subscribe))) {
+            subTopics.add(subscribe);
             return uuid;
         }
         return null;
     }
-    private void doSend(Object obj){
+
+    private void doSend(Object obj) {
         webSocket.send(serialize(obj));
     }
 
@@ -109,6 +125,7 @@ public abstract class BaseWebsocketImpl implements Closeable {
         subscribe.setPrivateChannel(privateChannel);
         subscribe.setResponse(response);
         if (webSocket.send(serialize(subscribe))) {
+            subTopics.remove(subscribe);
             return uuid;
         }
         return null;

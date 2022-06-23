@@ -26,6 +26,8 @@ public class APIConstants {
     public static final String API_DEPTH5_LEVEL2_TOPIC_PREFIX = "/spotMarket/level2Depth5:";
     public static final String API_DEPTH50_LEVEL2_TOPIC_PREFIX = "/spotMarket/level2Depth50:";
     public static final String API_MATCH_TOPIC_PREFIX = "/market/match:";
+
+    public static final String API_CANDLE_1MIN_TOPIC_PREFIX = "/market/candles:";
     @Deprecated
     public static final String API_LEVEL3_TOPIC_PREFIX = "/market/level3:";
     public static final String API_LEVEL3_V2_TOPIC_PREFIX = "/spotMarket/level3:";

@@ -4,6 +4,7 @@
 package com.kucoin.sdk.websocket.event;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 /**
@@ -11,6 +12,7 @@ import lombok.ToString;
  */
 @Data
 @ToString
+@EqualsAndHashCode
 public class KucoinEvent<T> {
 
     private String id;
