@@ -8,6 +8,7 @@ import com.kucoin.sdk.websocket.KucoinAPICallback;
 import com.kucoin.sdk.websocket.event.*;
 
 import java.io.IOException;
+import java.util.Objects;
 
 /**
  * Created by chenshiwei on 2019/1/10.

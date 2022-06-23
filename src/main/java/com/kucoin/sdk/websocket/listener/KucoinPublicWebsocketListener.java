@@ -27,9 +27,7 @@ import static com.kucoin.sdk.constants.APIConstants.*;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class KucoinPublicWebsocketListener extends WebSocketListener {
-
-    private BaseWebsocketImpl baseWebsocket;
+public class KucoinPublicWebsocketListener extends AbstactWebsocketListener {
 
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KucoinPublicWebsocketListener.class);
@@ -43,6 +41,7 @@ public class KucoinPublicWebsocketListener extends WebSocketListener {
     private KucoinAPICallback<KucoinEvent<Level3ChangeEvent>> level3Callback = new PrintCallback<>();
     private KucoinAPICallback<KucoinEvent<Level3Event>> level3V2Callback = new PrintCallback<>();
     private KucoinAPICallback<KucoinEvent<SnapshotEvent>> snapshotCallback = new PrintCallback<>();
+
 
     @Override
     public void onOpen(WebSocket webSocket, Response response) {
@@ -104,12 +103,9 @@ public class KucoinPublicWebsocketListener extends WebSocketListener {
     @Override
     public void onFailure(WebSocket webSocket, Throwable t, Response response) {
         LOGGER.error("Error on private socket", t);
-        try {
-            baseWebsocket.connect();
-        } catch (IOException e) {
-            LOGGER.warn("ws 重连异常");
-        }
+        super.onFailure(webSocket, t, response);
     }
+
 
     private JsonNode tree(String text) {
         try {

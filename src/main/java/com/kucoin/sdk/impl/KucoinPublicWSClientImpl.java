@@ -17,9 +17,12 @@ import com.kucoin.sdk.websocket.event.*;
 import com.kucoin.sdk.websocket.impl.BaseWebsocketImpl;
 import com.kucoin.sdk.websocket.listener.KucoinPublicWebsocketListener;
 import okhttp3.OkHttpClient;
+import okhttp3.Response;
+import okhttp3.WebSocket;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -160,6 +163,4 @@ public class KucoinPublicWSClientImpl extends BaseWebsocketImpl implements Kucoi
         String topic = APIConstants.API_SNAPSHOT_PREFIX + target;
         return subscribe(topic, false, true);
     }
-
-
 }

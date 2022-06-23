@@ -10,9 +10,11 @@ import com.kucoin.sdk.KucoinObjectMapper;
 import com.kucoin.sdk.model.InstanceServer;
 import com.kucoin.sdk.rest.response.WebsocketTokenResponse;
 import com.kucoin.sdk.websocket.ChooseServerStrategy;
+import com.kucoin.sdk.websocket.KucoinAPICallback;
 import com.kucoin.sdk.websocket.event.KucoinEvent;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 import org.slf4j.Logger;
@@ -25,6 +27,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadFactory;
@@ -40,6 +43,7 @@ public abstract class BaseWebsocketImpl implements Closeable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BaseWebsocketImpl.class);
 
+
     private final ChooseServerStrategy chooseServerStrategy;
     private final OkHttpClient client;
     private final WebSocketListener listener;
@@ -53,6 +57,7 @@ public abstract class BaseWebsocketImpl implements Closeable {
     }
 
     public void connect() throws IOException {
+
         this.webSocket = createNewWebSocket();
     }
 
@@ -79,7 +84,6 @@ public abstract class BaseWebsocketImpl implements Closeable {
         if (subTopics.size() > 0) {
             for (KucoinEvent<Void> subTopic : subTopics) {
                 LOGGER.warn("重连订阅 [{}],topic=> {}", webSocket.send(serialize(subTopic)), subTopic.toString());
-                ;
             }
         }
         return webSocket;
@@ -104,7 +108,7 @@ public abstract class BaseWebsocketImpl implements Closeable {
         subscribe.setTopic(topic);
         subscribe.setPrivateChannel(privateChannel);
         subscribe.setResponse(response);
-        LOGGER.info("suber=> {}", topic);
+        LOGGER.info("subscribe=> {}", topic);
         if (webSocket.send(serialize(subscribe))) {
             subTopics.add(subscribe);
             return uuid;
@@ -124,7 +128,7 @@ public abstract class BaseWebsocketImpl implements Closeable {
         subscribe.setTopic(topic);
         subscribe.setPrivateChannel(privateChannel);
         subscribe.setResponse(response);
-        LOGGER.info("suber=> {}", topic);
+        LOGGER.info("unsubscribe=> {}", topic);
         if (webSocket.send(serialize(subscribe))) {
             subTopics.remove(subscribe);
             return uuid;

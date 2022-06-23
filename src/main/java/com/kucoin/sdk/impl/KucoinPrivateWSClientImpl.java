@@ -21,6 +21,7 @@ import okhttp3.OkHttpClient;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -108,6 +109,5 @@ public class KucoinPrivateWSClientImpl extends BaseWebsocketImpl implements Kuco
         return super.unsubscribe(channelEnum.getTopicPrefix() + Arrays.stream(symbols).collect(Collectors.joining(",")),
                 true, true);
     }
-
 
 }

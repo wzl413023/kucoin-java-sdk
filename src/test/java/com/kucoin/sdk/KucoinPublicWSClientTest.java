@@ -13,6 +13,8 @@ import com.kucoin.sdk.websocket.KucoinAPICallback;
 import com.kucoin.sdk.websocket.event.*;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.Response;
+import okhttp3.WebSocket;
 import org.hamcrest.core.Is;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -127,6 +129,12 @@ public class KucoinPublicWSClientTest {
 
             }
         }, "BTC-USDT");
+        kucoinPublicWSClient.failed(new KucoinAPICallback<KucoinEvent<Void>>() {
+            @Override
+            public void onResponse(KucoinEvent<Void> response) throws KucoinApiException {
+
+            }
+        });
 
 //
 //        kucoinPublicWSClient.onMatchExecutionData(new KucoinAPICallback<KucoinEvent<MatchExcutionChangeEvent>>() {

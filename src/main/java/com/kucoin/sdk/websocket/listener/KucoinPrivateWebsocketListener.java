@@ -27,7 +27,7 @@ import java.util.Objects;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class KucoinPrivateWebsocketListener extends WebSocketListener {
+public class KucoinPrivateWebsocketListener extends AbstactWebsocketListener {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(KucoinPrivateWebsocketListener.class);
 
@@ -35,8 +35,6 @@ public class KucoinPrivateWebsocketListener extends WebSocketListener {
     private KucoinAPICallback<KucoinEvent<AccountChangeEvent>> accountChangeCallback = new PrintCallback<>();
     private KucoinAPICallback<KucoinEvent<OrderChangeEvent>> orderChangeCallback = new PrintCallback<>();
     private KucoinAPICallback<KucoinEvent<? extends AdvancedOrderEvent>> advancedOrderCallback = new PrintCallback<>();
-
-    private BaseWebsocketImpl baseWebsocket;
 
 
     @Override
@@ -85,24 +83,7 @@ public class KucoinPrivateWebsocketListener extends WebSocketListener {
     @Override
     public void onFailure(WebSocket webSocket, Throwable t, Response response) {
         LOGGER.error("Error on private socket", t);
-        try {
-            baseWebsocket.connect();
-        } catch (IOException e) {
-            LOGGER.warn("onFailure retry connection error.", e);
-        }
-        if (Objects.nonNull(orderActivateCallback)) {
-            orderActivateCallback.onFailure(webSocket, t, response);
-        }
-        if (Objects.nonNull(accountChangeCallback)) {
-            accountChangeCallback.onFailure(webSocket, t, response);
-        }
-        if (Objects.nonNull(orderChangeCallback)) {
-            orderChangeCallback.onFailure(webSocket, t, response);
-        }
-        if (Objects.nonNull(advancedOrderCallback)) {
-            advancedOrderCallback.onFailure(webSocket, t, response);
-        }
-
+        super.onFailure(webSocket, t, response);
     }
 
     private JsonNode tree(String text) {
